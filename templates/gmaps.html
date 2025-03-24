@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!--AIzaSyCxi1qtKgN10n3RABqvrH4pujSY-2dTLK0-->
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geocodificación Inversa con OpenStreetMap</title>
+</head>
+<body>
+    <h2>Dirección de la Ubicación</h2>
+    <p id="direccion">Buscando dirección...</p>
+    <p id="sentido"></p>
+
+    <script>
+        // Coordenadas que queremos convertir en dirección
+        var lat = 3.3442322;
+        var lon = -76.5174211;
+
+        // URL del servicio de geocodificación inversa de Nominatim
+        var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+
+        // Hacer la petición a la API
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.display_name) {
+                    document.getElementById("direccion").innerText = "Dirección: " + data.display_name;
+                } else {
+                    document.getElementById("direccion").innerText = "No se encontró una dirección.";
+                }
+            })
+            .catch(error => {
+                document.getElementById("direccion").innerText = "Error al obtener la dirección.";
+                console.error("Error:", error);
+            });
+
+
+            function calcularBearing(lat1, lon1, lat2, lon2) {
+            // Convertir grados a radianes
+            let rad = Math.PI / 180;
+            let φ1 = lat1 * rad;
+            let φ2 = lat2 * rad;
+            let Δλ = (lon2 - lon1) * rad;
+
+            // Calcular el bearing
+            let y = Math.sin(Δλ) * Math.cos(φ2);
+            let x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+            let θ = Math.atan2(y, x);
+
+            // Convertir de radianes a grados y normalizar entre 0° y 360°
+            let bearing = (θ * (180 / Math.PI) + 360) % 360;
+
+            return bearing;
+        }
+
+        // Ejemplo de uso
+        let lat1 = 3.3442322, lon1 = -76.5174211; // Punto inicial
+        let lat2 = 3.3450000, lon2 = -76.5150000; // Punto siguiente
+
+        let direccion = calcularBearing(lat1, lon1, lat2, lon2);
+        // console.log("Dirección de movimiento:", direccion.toFixed(2) + "°");
+        document.getElementById("sentido").innerText = "Sentido: " + direccion.toFixed(2) + "°";
+
+    </script>
+</body>
+</html>
