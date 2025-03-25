@@ -141,7 +141,7 @@ def consume_mio_api():
 
 # Programar la función solo una vez
 def schedule_task():
-    schedule.every(40).seconds.do(consume_mio_api)
+    schedule.every(10).seconds.do(consume_mio_api)
 
 def run_scheduler():
     """Función para ejecutar el scheduler en un hilo separado."""

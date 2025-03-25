@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaflet Múltiples Marcadores</title>
+    <title>Leaflet MIO Service</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <style>
-        #map { height: 500px; }
+        #map { height: calc(100vh - 20px); }
     </style>
 </head>
 <body>
@@ -74,12 +74,24 @@
 
         fetchRouteStops();
 
+        let busMarkers = [];
+        let arrowLines = [];
+
         // Obtener los Buses activos
         function fetchData() {
             fetch('/api/get_buses')
                 .then(response => response.json())
                 .then(data => {
+
                     console.log('Datos obtenidos:', data);
+
+                    // Eliminar los marcadores y líneas anteriores
+                    busMarkers.forEach(marker => map.removeLayer(marker));
+                    arrowLines.forEach(line => map.removeLayer(line));
+
+                    // Limpiar los arrays
+                    busMarkers = [];
+                    arrowLines = [];
 
                     Object.values(data).forEach(element  => {
                         // Obtener la última posición del array POSICIONES
@@ -88,28 +100,31 @@
                             const ultimaPosicion = posiciones[posiciones.length - 1]; // Último elemento del array
                             const coords = { lat: ultimaPosicion[0], lng: ultimaPosicion[1] }; // Formato de coordenadas
 
-                            L.marker(coords, { icon: customIcon })
+                            const busMarker = L.marker(coords, { icon: customIcon })
                                 .addTo(map)
                                 .bindPopup(`<b>${element.TASKID}</b>`);
 
-                                var angle = element.DIRECTION; // Ángulo de dirección del bus en grados
-                                console.log(angle);
+                            busMarkers.push(busMarker); 
 
-                                // Función para calcular la posición de la flecha detrás del bus
-                                function calculateArrowPosition(position, angle, distance) {
-                                    var rad = angle * (Math.PI / 180); // Convertir ángulo a radianes
-                                    var latOffset = Math.cos(rad) * distance;
-                                    var lngOffset = Math.sin(rad) * distance;
-                                    return [position[0] - latOffset, position[1] - lngOffset]; // Posición detrás del bus
-                                }
+                            var angle = element.DIRECTION; // Ángulo de dirección del bus en grados
+                            console.log(angle);
 
-                                // Calcular la posición de la flecha detrás del bus
-                                var arrowPosition = calculateArrowPosition([ultimaPosicion[0], ultimaPosicion[1]], angle, 0.0003); // 0.002 ≈ 200m
+                            // Función para calcular la posición de la flecha detrás del bus
+                            function calculateArrowPosition(position, angle, distance) {
+                                var rad = angle * (Math.PI / 180); // Convertir ángulo a radianes
+                                var latOffset = Math.cos(rad) * distance;
+                                var lngOffset = Math.sin(rad) * distance;
+                                return [position[0] - latOffset, position[1] - lngOffset]; // Posición detrás del bus
+                            }
 
-                                // Dibujar la flecha detrás del bus
-                                var arrowLine = L.polyline([arrowPosition, [ultimaPosicion[0], ultimaPosicion[1]]], { color: 'green', weight: 2 });
+                            // Calcular la posición de la flecha detrás del bus
+                            var arrowPosition = calculateArrowPosition([ultimaPosicion[0], ultimaPosicion[1]], angle, 0.0003); // 0.002 ≈ 200m
 
-                                arrowLine.addTo(map);
+                            // Dibujar la flecha detrás del bus
+                            var arrowLine = L.polyline([arrowPosition, [ultimaPosicion[0], ultimaPosicion[1]]], { color: 'green', weight: 2 });
+
+                            arrowLine.addTo(map);
+                            arrowLines.push(arrowLine); // Guardar en el array para eliminarlo después
                         }
 
                     });
