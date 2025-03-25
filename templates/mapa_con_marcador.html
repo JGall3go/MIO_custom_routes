@@ -32,9 +32,51 @@
             popupAnchor: [0, -32] // Posición del popup
         });
 
+        var customStopIcon = L.icon({
+            iconUrl: 'https://servicios.siur.com.co/buscarutas/img/paa.svg',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+
+        function fetchRoute() {
+            fetch('/api/get_route_lines')
+                .then(response => response.json())
+                .then(data => {
+
+                    // Dibujar la ruta con una línea azul
+                    var polyline = L.polyline(data["A17D"], {color: 'green', weight: 2, dashArray: '3, 5'}).addTo(map);
+
+                    // Ajustar el mapa a la ruta
+                    map.fitBounds(polyline.getBounds());
+
+                })
+                
+                .catch(error => console.error('Error al obtener los datos:', error))
+        }
+
+        fetchRoute();
+
+        function fetchRouteStops() {
+            fetch('/api/get_route_stops')
+                .then(response => response.json())
+                .then(data => {
+
+                    // Agregar marcadores en cada parada
+                    Object.values(data["A17D"]).forEach(stop => {
+                        L.marker([parseFloat(stop.DECIMALLATITUDE), parseFloat(stop.DECIMALLONGITUDE)], { icon: customStopIcon }).addTo(map);
+                    });
+
+                })
+                
+                .catch(error => console.error('Error al obtener los datos:', error))
+        }
+
+        fetchRouteStops();
+
         // Obtener los Buses activos
         function fetchData() {
-            fetch('/api/get_data')
+            fetch('/api/get_buses')
                 .then(response => response.json())
                 .then(data => {
                     console.log('Datos obtenidos:', data);

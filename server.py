@@ -154,13 +154,37 @@ def run_scheduler():
 def mapa_version_1():
     return render_template('mapa_con_marcador.html')
 
-# API Routesa
-@app.route('/api/get_data', methods=['GET'])
-def api_get_data():
+# API Routes
+@app.route('/api/get_buses', methods=['GET'])
+def api_get_buses():
 
     # Construye la ruta absoluta basada en la ubicación de este script
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, "database", "current_buses.json")
+    
+    with open(file_path, "r", encoding="utf-8") as content:
+        current_data = json.load(content)  # Cargar lista existente
+
+    return jsonify(current_data)
+
+@app.route('/api/get_route_lines', methods=['GET'])
+def api_get_routes():
+
+    # Construye la ruta absoluta basada en la ubicación de este script
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, "database", "route_lines.json")
+    
+    with open(file_path, "r", encoding="utf-8") as content:
+        current_data = json.load(content)  # Cargar lista existente
+
+    return jsonify(current_data)
+
+@app.route('/api/get_route_stops', methods=['GET'])
+def api_get_route_stops():
+
+    # Construye la ruta absoluta basada en la ubicación de este script
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, "database", "route_stops.json")
     
     with open(file_path, "r", encoding="utf-8") as content:
         current_data = json.load(content)  # Cargar lista existente
